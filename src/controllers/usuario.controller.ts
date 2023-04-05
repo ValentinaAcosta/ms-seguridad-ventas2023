@@ -13,10 +13,11 @@ import {
   getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {UserProfile} from '@loopback/security';
 import {ConfiguracionSeguridad} from '../config/seguridad.config';
-import {Credenciales, FactorDeAutenticacionPorCodigo, Login, Usuario} from '../models';
+import {Credenciales, FactorDeAutenticacionPorCodigo, Login, PermisosRolMenu, Usuario} from '../models';
 import {LoginRepository, UsuarioRepository} from '../repositories';
-import {SeguridadUsuarioService} from '../services';
+import {AuthService, SeguridadUsuarioService} from '../services';
 
 export class UsuarioController {
   constructor(
@@ -25,7 +26,9 @@ export class UsuarioController {
     @service(SeguridadUsuarioService)
     public servicioSeguridad: SeguridadUsuarioService,
     @repository(LoginRepository)
-    public repositoryLogin: LoginRepository
+    public repositoryLogin: LoginRepository,
+    @service(AuthService)
+    private servicioAuth: AuthService
   ) { }
 
   @authenticate({
@@ -202,6 +205,29 @@ export class UsuarioController {
       return usuario
     }
     return new HttpErrors[401]("Credenciales incorrectas.");
+  }
+
+
+  @post('/validar-permisos')
+  @response(200, {
+    description: "Validacion de permisos de un usuario para logixa de negocio",
+    content: {'application/json': {schema: getModelSchemaRef(PermisosRolMenu)}}
+  })
+  async ValidarPermisosDeUsuario(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(PermisosRolMenu)
+        }
+      }
+    }
+
+    )
+    datos: PermisosRolMenu
+  ): Promise<UserProfile | undefined> {
+    return this.servicioAuth.VerificarPermisoDeUsuarioPorRol(datos.idRol, datos.idMenu, datos.accion);
+
+
   }
 
 
