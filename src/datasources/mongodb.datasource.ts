@@ -1,14 +1,16 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
+import {ConfiguracionSeguridad} from '../config/seguridad.config';
+console.log(process.env.CONNECTION_STRING_MONGODB);
 
 const config = {
   name: 'mongodb',
   connector: 'mongodb',
-  url: 'mongodb+srv://user-mongo-ventas:Admin2023@cluster0.c47cctx.mongodb.net/seguridad_ventas?retryWrites=true&w=majority',
+  url: ConfiguracionSeguridad.mongodbConnectionString,
   host: 'localhost',
   port: 27017,
   user: '',
-  password: '',
+  password: "",
   database: 'seguridad_ventas',
   useNewUrlParser: true
 };
